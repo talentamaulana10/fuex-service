@@ -2,9 +2,18 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const mobilePhoneNumber = req.body.mobilePhoneNumber;
-  User.findOne({ mobilePhoneNumber: mobilePhoneNumber }).then((response) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  const type = req.body.type;
+  const wallet = req.body.wallet;
+  try {
+    const response = await User.findOne({
+      mobilePhoneNumber: mobilePhoneNumber,
+      username: username,
+    });
+    console.log(response);
     if (response) {
       return res.json({
         message: "USER ALREADY EXIST",
@@ -13,59 +22,71 @@ router.post("/", (req, res) => {
       });
     } else {
       const newUser = new User({
-        username: req.body.username,
-        password: req.body.password,
-        mobilePhoneNumber: req.body.mobilePhoneNumber,
-        type: req.body.type,
-        wallet: req.body.wallet,
+        username: username,
+        password: password,
+        mobilePhoneNumber: mobilePhoneNumber,
+        type: type,
+        wallet: wallet,
       });
-      newUser
-        .save()
-        .then((DBinteraction) => {
-          if (DBinteraction) {
-            res.status(200).json({
-              status: "SUCCESS",
-              message: "SUCCESS",
-              data: DBinteraction,
-            });
-          } else {
-            res.status(200).json({
-              status: "ERROR",
-              message: "ERROR",
-              data: DBinteraction,
-            });
-          }
-        })
-        .catch((err) => {
-          res.status(200).json(err);
-        });
-    }
-  });
-});
-
-router.post("/login", (req, res) => {
-  User.findOne({
-    username: req.body.username,
-    password: req.body.password,
-  })
-    .then((DBinteraction) => {
-      if (DBinteraction) {
-        res.status(200).json({
-          status: "SUCCESS",
-          message: "SUCCESS",
-          data: DBinteraction,
-        });
-      } else {
-        res.status(200).json({
+      try {
+        const DBinteraction = await newUser.save();
+        if (DBinteraction) {
+          res.status(200).json({
+            status: "SUCCESS",
+            message: "SUCCESS",
+            data: DBinteraction,
+          });
+        } else {
+          res.status(200).json({
+            status: "ERROR",
+            message: "ERROR",
+            data: DBinteraction,
+          });
+        }
+      } catch (error) {
+        res.json({
           status: "ERROR",
-          message: "Username Or Password Match",
+          message: `${error}`,
           data: DBinteraction,
         });
       }
-    })
-    .catch((err) => {
-      res.status(200).json(err);
+    }
+  } catch (error) {
+    res.json({
+      status: "ERROR",
+      message: `${error}`,
+      data: DBinteraction,
     });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const DBinteraction = await User.findOne({
+      username: req.body.username,
+      password: req.body.password,
+    });
+    console.log(DBinteraction);
+    if (DBinteraction) {
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "SUCCESS",
+        data: DBinteraction,
+      });
+    } else {
+      res.status(200).json({
+        status: "ERROR",
+        message: "Username Or Password Match",
+        data: DBinteraction,
+      });
+    }
+  } catch (error) {
+    res.json({
+      status: "ERROR",
+      message: `${error}`,
+      data: DBinteraction,
+    });
+  }
 });
 
 module.exports = router;
