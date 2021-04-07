@@ -1,91 +1,90 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const Wallet = require("../models/Wallet");
+const ServiceUsers = require("../services/User");
+const responseTemplate = require("../response-templates");
 
 router.post("/", async (req, res) => {
   const mobilePhoneNumber = req.body.mobilePhoneNumber;
   const username = req.body.username;
   const password = req.body.password;
-  const type = req.body.type;
-  const wallet = req.body.wallet;
   try {
     const response = await User.findOne({
       mobilePhoneNumber: mobilePhoneNumber,
       username: username,
     });
-    console.log(response);
     if (response) {
-      return res.json({
-        message: "USER ALREADY EXIST",
-        code: "USER ALREADY EXIST",
-        status: "ERROR",
-      });
+      const templateResponse = responseTemplate.error;
+      templateResponse.message = "DATA ALREADY EXITS";
+      res.status(200).json(templateResponse);
     } else {
-      const newUser = new User({
-        username: username,
-        password: password,
-        mobilePhoneNumber: mobilePhoneNumber,
-        type: type,
-        wallet: wallet,
+      const newWallet = new Wallet({
+        balance: 0,
       });
       try {
-        const DBinteraction = await newUser.save();
-        if (DBinteraction) {
-          res.status(200).json({
-            status: "SUCCESS",
-            message: "SUCCESS",
-            data: DBinteraction,
-          });
+        const DbWalletInteraction = await newWallet.save();
+        if (DbWalletInteraction) {
+          try {
+            const newUser = new User({
+              username: username,
+              password: password,
+              mobilePhoneNumber: mobilePhoneNumber,
+              wallet: DbWalletInteraction._id,
+              type: "1",
+            });
+            const DbUserInteraction = await newUser.save();
+            if (DbUserInteraction) {
+              const templateResponse = responseTemplate.success;
+              templateResponse.data = DbUserInteraction;
+              res.status(200).json(templateResponse);
+            } else {
+              const templateResponse = responseTemplate.error;
+              templateResponse.message = DbUserInteraction;
+              res.status(200).json(templateResponse);
+            }
+          } catch (error) {
+            const templateResponse = responseTemplate.error;
+            templateResponse.message = error;
+            res.json(templateResponse);
+          }
         } else {
-          res.status(200).json({
-            status: "ERROR",
-            message: "ERROR",
-            data: DBinteraction,
-          });
+          const templateResponse = responseTemplate.error;
+          templateResponse.message = DbWalletInteraction;
+          res.status(200).json(templateResponse);
         }
       } catch (error) {
-        res.json({
-          status: "ERROR",
-          message: `${error}`,
-          data: DBinteraction,
-        });
+        const templateResponse = responseTemplate.error;
+        templateResponse.message = error;
+        res.json(templateResponse);
       }
     }
   } catch (error) {
-    res.json({
-      status: "ERROR",
-      message: `${error}`,
-      data: DBinteraction,
-    });
+    const templateResponse = responseTemplate.error;
+    templateResponse.message = error;
+    res.json(templateResponse);
   }
 });
 
 router.post("/login", async (req, res) => {
   try {
-    const DBinteraction = await User.findOne({
+    const response = await ServiceUsers.Login({
       username: req.body.username,
       password: req.body.password,
     });
-    console.log(DBinteraction);
-    if (DBinteraction) {
-      res.status(200).json({
-        status: "SUCCESS",
-        message: "SUCCESS",
-        data: DBinteraction,
-      });
+    if (response) {
+      const templateResponse = responseTemplate.success;
+      templateResponse.data = response;
+      res.status(200).json(templateResponse);
     } else {
-      res.status(200).json({
-        status: "ERROR",
-        message: "Username Or Password Match",
-        data: DBinteraction,
-      });
+      const templateResponse = responseTemplate.error;
+      templateResponse.message = "Username Or Password Not Match";
+      res.status(200).json(templateResponse);
     }
   } catch (error) {
-    res.json({
-      status: "ERROR",
-      message: `${error}`,
-      data: DBinteraction,
-    });
+    const templateResponse = responseTemplate.error;
+    templateResponse.message = error;
+    res.json(templateResponse);
   }
 });
 
