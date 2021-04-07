@@ -5,6 +5,25 @@ const Wallet = require("../models/Wallet");
 const ServiceUsers = require("../services/User");
 const responseTemplate = require("../response-templates");
 
+router.get(`/:id`, async (req, res) => {
+  try {
+    const DbUserInteraction = await User.findById(req.params.id);
+    if (DbUserInteraction) {
+      const templateResponse = responseTemplate.success;
+      templateResponse.data = DbUserInteraction;
+      res.status(200).json(templateResponse);
+    } else {
+      const templateResponse = responseTemplate.error;
+      templateResponse.message = DbUserInteraction;
+      res.status(200).json(templateResponse);
+    }
+  } catch (error) {
+    const templateResponse = responseTemplate.error;
+    templateResponse.message = error;
+    res.json(templateResponse);
+  }
+});
+
 router.post("/", async (req, res) => {
   const mobilePhoneNumber = req.body.mobilePhoneNumber;
   const username = req.body.username;
