@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const app = express();
 
 const users = require("./controllers/User");
+const wallet = require("./controllers/Wallet");
 
 const path = require("path");
 
@@ -29,6 +30,7 @@ app.use(bodyParser.json());
 app.use(express.static("public"));
 
 app.use("/users", users);
+app.use("/wallet", wallet);
 
 const PORT = process.env.PORT || 5000;
 
