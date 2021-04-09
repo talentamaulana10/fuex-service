@@ -7,6 +7,7 @@ const app = express();
 
 const users = require("./controllers/User");
 const wallet = require("./controllers/Wallet");
+const userType = require("./controllers/UserType");
 
 const path = require("path");
 
@@ -31,6 +32,7 @@ app.use(express.static("public"));
 
 app.use("/users", users);
 app.use("/wallet", wallet);
+app.use("/reference/user-type", userType);
 
 const PORT = process.env.PORT || 5000;
 

@@ -17,6 +17,6 @@ const WalletHitorySchema = new schema({
 });
 
 module.exports = WalletHitory = mongoose.model(
-  "wallethistory",
+  "wallet_history",
   WalletHitorySchema
 );

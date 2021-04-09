@@ -28,6 +28,7 @@ router.post("/", async (req, res) => {
   const mobilePhoneNumber = req.body.mobilePhoneNumber;
   const username = req.body.username;
   const password = req.body.password;
+  const type = req.body.type;
   try {
     const response = await User.findOne({
       mobilePhoneNumber: mobilePhoneNumber,
@@ -50,7 +51,7 @@ router.post("/", async (req, res) => {
               password: password,
               mobilePhoneNumber: mobilePhoneNumber,
               wallet: DbWalletInteraction._id,
-              type: "1",
+              type: type,
             });
             const DbUserInteraction = await newUser.save();
             if (DbUserInteraction) {

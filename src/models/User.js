@@ -14,7 +14,7 @@ const UserSchema = new schema({
     type: Number,
     required: true,
   },
-  type: {
+  userType: {
     type: String,
     required: true,
   },
