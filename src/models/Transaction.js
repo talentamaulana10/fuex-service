@@ -38,6 +38,10 @@ const TransactionSchema = new schema({
     type: String,
     required: true,
   },
+  fullType: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = Transaction = mongoose.model(
