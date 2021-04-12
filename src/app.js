@@ -9,6 +9,8 @@ const users = require("./controllers/User");
 const wallet = require("./controllers/Wallet");
 const userType = require("./controllers/UserType");
 const transactionStatus = require("./controllers/TransactionStatus");
+const vehicleType = require("./controllers/VehicleType");
+const transactions = require("./controllers/Transaction");
 
 const path = require("path");
 
@@ -35,6 +37,8 @@ app.use("/users", users);
 app.use("/wallet", wallet);
 app.use("/reference/user-type", userType);
 app.use("/reference/transaction-status", transactionStatus);
+app.use("/reference/vehicle-type", vehicleType);
+app.use("/reference/transactions", transactions);
 
 const PORT = process.env.PORT || 5000;
 
