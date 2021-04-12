@@ -38,7 +38,7 @@ const TransactionSchema = new schema({
     type: String,
     required: true,
   },
-  fullType: {
+  fuelType: {
     type: String,
     required: true,
   },
