@@ -46,10 +46,6 @@ const TransactionSchema = new schema({
     type: String,
     required: true,
   },
-  fuelType: {
-    type: String,
-    required: true,
-  },
 });
 
 module.exports = Transaction = mongoose.model(
