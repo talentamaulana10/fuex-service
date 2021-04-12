@@ -11,7 +11,6 @@ const userType = require("./controllers/UserType");
 const transactionStatus = require("./controllers/TransactionStatus");
 const vehicleType = require("./controllers/VehicleType");
 const transactions = require("./controllers/Transaction");
-const fuelType = require("./controllers/FuelType");
 
 const path = require("path");
 
@@ -40,7 +39,6 @@ app.use("/reference/user-type", userType);
 app.use("/reference/transaction-status", transactionStatus);
 app.use("/reference/vehicle-type", vehicleType);
 app.use("/reference/transactions", transactions);
-app.use("/reference/fuel-type", fuelType);
 
 const PORT = process.env.PORT || 5000;
 
