@@ -18,6 +18,10 @@ const ResiSchema = new schema({
     type: "String",
     required: true,
   },
+  isDelivered: {
+    type: Boolean,
+    required: false,
+  },
 });
 
 module.exports = Resi = mongoose.model("resi", ResiSchema);

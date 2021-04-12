@@ -6,6 +6,10 @@ const TransactionSchema = new schema({
     type: String,
     required: true,
   },
+  createdDate: {
+    type: Date,
+    default: Date.now,
+  },
   product: {
     type: String,
     required: true,
@@ -23,6 +27,10 @@ const TransactionSchema = new schema({
     required: true,
   },
   adminfee: {
+    type: String,
+    required: true,
+  },
+  resi: {
     type: String,
     required: true,
   },
