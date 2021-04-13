@@ -39,8 +39,8 @@ app.use("/wallet", wallet);
 app.use("/reference/user-type", userType);
 app.use("/reference/transaction-status", transactionStatus);
 app.use("/reference/vehicle-type", vehicleType);
-app.use("/reference/transactions", transactions);
-app.use("/reference/product", product);
+app.use("/transactions", transactions);
+app.use("/product", product);
 
 const PORT = process.env.PORT || 5000;
 

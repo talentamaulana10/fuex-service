@@ -14,6 +14,10 @@ const TransactionSchema = new schema({
     type: String,
     required: true,
   },
+  quantity: {
+    type: Number,
+    required: true,
+  },
   deliveryCost: {
     type: Number,
     require: true,
@@ -26,23 +30,11 @@ const TransactionSchema = new schema({
     type: String,
     required: true,
   },
-  adminfee: {
+  adminFee: {
     type: String,
     required: true,
   },
   resi: {
-    type: String,
-    required: true,
-  },
-  vehicleName: {
-    type: String,
-    required: true,
-  },
-  vehicleType: {
-    type: String,
-    required: true,
-  },
-  numberPlate: {
     type: String,
     required: true,
   },

@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Product = require("../models/Product");
+const VehicleType = require("../models/VehicleType");
 const Transaction = require("../models/Transaction");
+const Wallet = require("../models/Wallet");
+const Resi = require("../models/Resi");
 const responseTemplate = require("../response-templates");
 
 router.get("/", async (req, res) => {
@@ -25,30 +28,101 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  var {
-    vehicleName,
-    vehicleType,
-    numberPlate,
-    buyer,
-    product,
-    deliveryCost,
-    address,
-    adminFee,
-  } = req.body;
+  var { buyer, product, deliveryCost, address, adminFee } = req.body;
   try {
-    const DBUserTypeInteraction = await User.findById(buyer);
-    if (DBUserTypeInteraction) {
+    const DBUserInteraction = await User.findById(buyer);
+    if (DBUserInteraction) {
       try {
-        const DBFuelTypeInteraction = await FuelType.findById(fuelType);
-        if (DBFuelTypeInteraction) {
+        const DBProductInteraction = await Product.findById(product);
+        if (DBProductInteraction) {
+          try {
+            const DBVehicleTypeInteraction = await VehicleType.findById(
+              vehicleType
+            );
+            if (DBVehicleTypeInteraction) {
+              try {
+                var shoppingCost =
+                  DBProductInteraction.price + deliveryCost + adminFee;
+                const DBWalletInteraction = await Wallet.findByIdAndUpdate(
+                  DBUserInteraction.wallet,
+                  { $inc: { balance: -shoppingCost } }
+                );
+                if (DBWalletInteraction) {
+                  try {
+                    const newResi = new Resi({
+                      sender: DBProductInteraction.seller,
+                      receiver: buyer,
+                      deliveryCost: deliveryCost,
+                      address: address,
+                      isDelivered: false,
+                    });
+                    const DBResiInteraction = await newResi.save();
+                    if (DBResiInteraction) {
+                      try {
+                        const newTransaction = new Transaction({
+                          buyer: buyer,
+                          product: product,
+                          address: address,
+                          adminFee: adminFee,
+                          vehicleType: vehicleType,
+                          numberPlate: numberPlate,
+                          status: "1",
+                          vehicleName: vehicleName,
+                          resi: DBResiInteraction._id,
+                        });
+                        const DBTransactionInteraction = await newTransaction.save();
+                        if (DBTransactionInteraction) {
+                          const templateResponse = responseTemplate.success;
+                          templateResponse.data = DBTransactionInteraction;
+                          res.status(200).json(templateResponse);
+                        } else {
+                          const templateResponse = responseTemplate.error;
+                          templateResponse.message = DBTransactionInteraction;
+                          res.status(200).json(templateResponse);
+                        }
+                      } catch (error) {
+                        const templateResponse = responseTemplate.error;
+                        templateResponse.message = `${error}`;
+                        res.status(200).json(templateResponse);
+                      }
+                    } else {
+                      const templateResponse = responseTemplate.error;
+                      templateResponse.message = DBResiInteraction;
+                      res.status(200).json(templateResponse);
+                    }
+                  } catch (error) {
+                    const templateResponse = responseTemplate.error;
+                    templateResponse.message = `${error}`;
+                    res.status(200).json(templateResponse);
+                  }
+                } else {
+                  const templateResponse = responseTemplate.error;
+                  templateResponse.message = "Failed To Debet Wallet";
+                  res.status(200).json(templateResponse);
+                }
+              } catch (error) {
+                const templateResponse = responseTemplate.error;
+                templateResponse.message = `${error}`;
+                res.status(200).json(templateResponse);
+              }
+            } else {
+              const templateResponse = responseTemplate.error;
+              templateResponse.message = "VEHICLE TYPE NOT FOUND";
+              res.status(200).json(templateResponse);
+            }
+          } catch (error) {
+            const templateResponse = responseTemplate.error;
+            templateResponse.message = `${error}`;
+            res.status(200).json(templateResponse);
+          }
         } else {
           const templateResponse = responseTemplate.error;
-          templateResponse.message = "FUEL TYPE NOT FOUND";
+          templateResponse.message = "PRODUCT NOT FOUND";
           res.status(200).json(templateResponse);
         }
       } catch (error) {
         const templateResponse = responseTemplate.error;
-        templateResponse.message = error;
+        templateResponse.message = `${error}`;
         res.status(200).json(templateResponse);
       }
     } else {
@@ -58,7 +132,7 @@ router.post("/", async (req, res) => {
     }
   } catch (error) {
     const templateResponse = responseTemplate.error;
-    templateResponse.message = error;
+    templateResponse.message = `${error}`;
     res.status(200).json(templateResponse);
   }
 });
