@@ -23,22 +23,9 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  var { name, seller, price } = req.body;
   try {
-    const newProduct = new Product({
-      name: req.body.name,
-      seller: req.body.seller,
-      price: req.body.price,
-    });
-    const DBProductInteraction = await newProduct.save();
-    if (DBProductInteraction) {
-      const templateResponse = responseTemplate.success;
-      templateResponse.data = DBProductInteraction;
-      res.status(200).json(templateResponse);
-    } else {
-      const templateResponse = responseTemplate.error;
-      templateResponse.message = DBProductInteraction;
-      res.status(200).json(templateResponse);
-    }
+    const DBProductInteraction = await Product.findById(product);
   } catch (error) {
     const templateResponse = responseTemplate.error;
     templateResponse.message = error;
