@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  var { buyer, product, deliveryCost, address, adminFee } = req.body;
+  var { buyer, product, deliveryCost, address, adminFee, quantity } = req.body;
   try {
     const DBUserInteraction = await User.findById(buyer);
     if (DBUserInteraction) {
@@ -36,58 +36,43 @@ router.post("/", async (req, res) => {
         const DBProductInteraction = await Product.findById(product);
         if (DBProductInteraction) {
           try {
-            const DBVehicleTypeInteraction = await VehicleType.findById(
-              vehicleType
+            var shoppingCost =
+              DBProductInteraction.price * parseFloat(quantity) +
+              parseFloat(deliveryCost) +
+              parseFloat(adminFee);
+            const DBWalletInteraction = await Wallet.findByIdAndUpdate(
+              DBUserInteraction.wallet,
+              { $inc: { balance: -shoppingCost } }
             );
-            if (DBVehicleTypeInteraction) {
+            if (DBWalletInteraction) {
               try {
-                var shoppingCost =
-                  DBProductInteraction.price + deliveryCost + adminFee;
-                const DBWalletInteraction = await Wallet.findByIdAndUpdate(
-                  DBUserInteraction.wallet,
-                  { $inc: { balance: -shoppingCost } }
-                );
-                if (DBWalletInteraction) {
+                const newResi = new Resi({
+                  sender: DBProductInteraction.seller,
+                  receiver: buyer,
+                  deliveryCost: deliveryCost,
+                  address: address,
+                  isDelivered: false,
+                });
+                const DBResiInteraction = await newResi.save();
+                if (DBResiInteraction) {
                   try {
-                    const newResi = new Resi({
-                      sender: DBProductInteraction.seller,
-                      receiver: buyer,
-                      deliveryCost: deliveryCost,
+                    const newTransaction = new Transaction({
+                      buyer: buyer,
+                      product: product,
                       address: address,
-                      isDelivered: false,
+                      quantity: quantity,
+                      adminFee: adminFee,
+                      status: "1",
+                      resi: DBResiInteraction._id,
                     });
-                    const DBResiInteraction = await newResi.save();
-                    if (DBResiInteraction) {
-                      try {
-                        const newTransaction = new Transaction({
-                          buyer: buyer,
-                          product: product,
-                          address: address,
-                          adminFee: adminFee,
-                          vehicleType: vehicleType,
-                          numberPlate: numberPlate,
-                          status: "1",
-                          vehicleName: vehicleName,
-                          resi: DBResiInteraction._id,
-                        });
-                        const DBTransactionInteraction = await newTransaction.save();
-                        if (DBTransactionInteraction) {
-                          const templateResponse = responseTemplate.success;
-                          templateResponse.data = DBTransactionInteraction;
-                          res.status(200).json(templateResponse);
-                        } else {
-                          const templateResponse = responseTemplate.error;
-                          templateResponse.message = DBTransactionInteraction;
-                          res.status(200).json(templateResponse);
-                        }
-                      } catch (error) {
-                        const templateResponse = responseTemplate.error;
-                        templateResponse.message = `${error}`;
-                        res.status(200).json(templateResponse);
-                      }
+                    const DBTransactionInteraction = await newTransaction.save();
+                    if (DBTransactionInteraction) {
+                      const templateResponse = responseTemplate.success;
+                      templateResponse.data = DBTransactionInteraction;
+                      res.status(200).json(templateResponse);
                     } else {
                       const templateResponse = responseTemplate.error;
-                      templateResponse.message = DBResiInteraction;
+                      templateResponse.message = DBTransactionInteraction;
                       res.status(200).json(templateResponse);
                     }
                   } catch (error) {
@@ -97,7 +82,7 @@ router.post("/", async (req, res) => {
                   }
                 } else {
                   const templateResponse = responseTemplate.error;
-                  templateResponse.message = "Failed To Debet Wallet";
+                  templateResponse.message = DBResiInteraction;
                   res.status(200).json(templateResponse);
                 }
               } catch (error) {
@@ -107,7 +92,7 @@ router.post("/", async (req, res) => {
               }
             } else {
               const templateResponse = responseTemplate.error;
-              templateResponse.message = "VEHICLE TYPE NOT FOUND";
+              templateResponse.message = "Failed To Debet Wallet";
               res.status(200).json(templateResponse);
             }
           } catch (error) {
