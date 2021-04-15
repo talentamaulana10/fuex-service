@@ -14,6 +14,10 @@ const TransactionSchema = new schema({
     type: String,
     required: true,
   },
+  quantity: {
+    type: Number,
+    required: true,
+  },
   deliveryCost: {
     type: Number,
     require: true,
