@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Product = require("../models/Product");
+const VehicleType = require("../models/VehicleType");
 const Transaction = require("../models/Transaction");
 const Wallet = require("../models/Wallet");
 const Resi = require("../models/Resi");
