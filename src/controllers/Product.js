@@ -4,6 +4,25 @@ const Product = require("../models/Product");
 const responseTemplate = require("../response-templates");
 const User = require("../models/User");
 
+router.get("/:id", async (req, res) => {
+  try {
+    const DBProductInteraction = await Product.findById(req.params.id);
+    if (DBProductInteraction) {
+      const templateResponse = responseTemplate.success;
+      templateResponse.data = DBProductInteraction;
+      res.status(200).json(templateResponse);
+    } else {
+      const templateResponse = responseTemplate.error;
+      templateResponse.message = "DATA NOT FOUND";
+      res.status(200).json(templateResponse);
+    }
+  } catch (error) {
+    const templateResponse = responseTemplate.error;
+    templateResponse.message = ` ${error}`;
+    res.json(templateResponse);
+  }
+});
+
 router.get("/", async (req, res) => {
   try {
     const DBProductInteraction = await Product.find({});
