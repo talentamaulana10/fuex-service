@@ -88,6 +88,7 @@ router.post("/", async (req, res) => {
                             product: product,
                             address: address,
                             quantity: quantity,
+                            deliveryCost: deliveryCost,
                             adminFee: adminFee,
                             status: "1",
                             resi: DBResiInteraction._id,
