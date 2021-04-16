@@ -11,6 +11,7 @@ const userType = require("./controllers/UserType");
 const transactionStatus = require("./controllers/TransactionStatus");
 const transactions = require("./controllers/Transaction");
 const product = require("./controllers/Product");
+// const resi = require("./controllers/Resi");
 
 const path = require("path");
 
@@ -36,6 +37,7 @@ app.use(express.static("public"));
 app.use("/users", users);
 app.use("/wallet", wallet);
 app.use("/reference/user-type", userType);
+// app.use("/reference/resi", resi);
 app.use("/reference/transaction-status", transactionStatus);
 app.use("/transactions", transactions);
 app.use("/product", product);

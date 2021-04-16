@@ -6,9 +6,7 @@ const User = require("../models/User");
 
 router.get("/", async (req, res) => {
   try {
-    const DBProductInteraction = await Product.find({
-      seller: req.query.seller,
-    });
+    const DBProductInteraction = await Product.find({});
     if (DBProductInteraction && DBProductInteraction.length !== 0) {
       const templateResponse = responseTemplate.success;
       templateResponse.data = DBProductInteraction;
