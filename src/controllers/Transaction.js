@@ -86,6 +86,7 @@ router.post("/", async (req, res) => {
                           const newTransaction = new Transaction({
                             buyer: buyer,
                             product: product,
+                            deliveryCost: deliveryCost,
                             address: address,
                             quantity: quantity,
                             adminFee: adminFee,
