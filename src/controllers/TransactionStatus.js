@@ -3,9 +3,11 @@ const router = express.Router();
 const TransactionStatus = require("../models/TransactionStatus");
 const responseTemplate = require("../response-templates");
 
-router.get("/", async (req, res) => {
+router.get("/findByCode", async (req, res) => {
   try {
-    const DBTransactionStatusInteraction = await TransactionStatus.find({});
+    const DBTransactionStatusInteraction = await TransactionStatus.findOne({
+      code: req.query.code,
+    });
     if (DBTransactionStatusInteraction) {
       const templateResponse = responseTemplate.success;
       templateResponse.data = DBTransactionStatusInteraction;
@@ -22,22 +24,21 @@ router.get("/", async (req, res) => {
   }
 });
 
-
-router.get("/:id", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const DBTransactionStatusInteraction = await TransactionStatus.findById(req.params.id);
+    const DBTransactionStatusInteraction = await TransactionStatus.find({});
     if (DBTransactionStatusInteraction) {
       const templateResponse = responseTemplate.success;
       templateResponse.data = DBTransactionStatusInteraction;
       res.status(200).json(templateResponse);
     } else {
       const templateResponse = responseTemplate.error;
-      templateResponse.message = "DATA NOT FOUND";
+      templateResponse.message = DBTransactionStatusInteraction;
       res.status(200).json(templateResponse);
     }
   } catch (error) {
     const templateResponse = responseTemplate.error;
-    templateResponse.message = ` ${error}`;
+    templateResponse.message = error;
     res.json(templateResponse);
   }
 });
