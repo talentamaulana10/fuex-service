@@ -45,6 +45,94 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.put("/procces/:id", async (req, res) => {
+  try {
+    const DBTransactionInteraction = await Transaction.findById(req.params.id);
+    if (DBTransactionInteraction) {
+      try {
+        const DBProductInteraction = await Product.findById(
+          DBTransactionInteraction.product
+        );
+        if (DBProductInteraction) {
+          try {
+            const DBUserFindDriver = await User.findOne({ userType: 4 });
+            if (DBUserFindDriver) {
+              try {
+                const newResi = new Resi({
+                  sender: DBProductInteraction.seller,
+                  receiver: DBTransactionInteraction.buyer,
+                  driver: DBUserFindDriver._id,
+                  deliveryCost: DBTransactionInteraction.deliveryCost,
+                  address: DBTransactionInteraction.address,
+                  isDelivered: false,
+                });
+                const DBResiInteraction = await newResi.save();
+                if (DBResiInteraction) {
+                  try {
+                    const DBUpdateTransactionInteraction = await Transaction.findByIdAndUpdate(
+                      req.params.id,
+                      {
+                        status: "2",
+                        resi: DBResiInteraction._id,
+                      }
+                    );
+                    if (DBUpdateTransactionInteraction) {
+                      const templateResponse = responseTemplate.success;
+                      templateResponse.data = DBUpdateTransactionInteraction;
+                      res.status(200).json(templateResponse);
+                    } else {
+                      const templateResponse = responseTemplate.error;
+                      templateResponse.message =
+                        "FAILED SET TRANSACTION STATUS";
+                      res.status(200).json(templateResponse);
+                    }
+                  } catch (error) {
+                    const templateResponse = responseTemplate.error;
+                    templateResponse.message = `${error}`;
+                    res.status(200).json(templateResponse);
+                  }
+                } else {
+                  const templateResponse = responseTemplate.error;
+                  templateResponse.message = "FAILED CREATE RESI";
+                  res.status(200).json(templateResponse);
+                }
+              } catch (error) {
+                const templateResponse = responseTemplate.error;
+                templateResponse.message = `${error}`;
+                res.status(200).json(templateResponse);
+              }
+            } else {
+              const templateResponse = responseTemplate.error;
+              templateResponse.message = "DRIVER NOT FOUND";
+              res.status(200).json(templateResponse);
+            }
+          } catch (error) {
+            const templateResponse = responseTemplate.error;
+            templateResponse.message = `${error}`;
+            res.status(200).json(templateResponse);
+          }
+        } else {
+          const templateResponse = responseTemplate.error;
+          templateResponse.message = "PRODUCT NOT FOUND";
+          res.status(200).json(templateResponse);
+        }
+      } catch (error) {
+        const templateResponse = responseTemplate.error;
+        templateResponse.message = `${error}`;
+        res.status(200).json(templateResponse);
+      }
+    } else {
+      const templateResponse = responseTemplate.error;
+      templateResponse.message = "TRANSACTION NOT FOUND";
+      res.status(200).json(templateResponse);
+    }
+  } catch (error) {
+    const templateResponse = responseTemplate.error;
+    templateResponse.message = `${error}`;
+    res.status(200).json(templateResponse);
+  }
+});
+
 router.post("/", async (req, res) => {
   var { buyer, product, deliveryCost, address, adminFee, quantity } = req.body;
   try {
@@ -73,44 +161,24 @@ router.post("/", async (req, res) => {
                   );
                   if (DBWalletInteraction) {
                     try {
-                      const newResi = new Resi({
-                        sender: DBProductInteraction.seller,
-                        receiver: buyer,
+                      const newTransaction = new Transaction({
+                        buyer: buyer,
+                        product: product,
                         deliveryCost: deliveryCost,
                         address: address,
-                        isDelivered: false,
+                        quantity: quantity,
+                        adminFee: adminFee,
+                        status: "1",
+                        resi: null,
                       });
-                      const DBResiInteraction = await newResi.save();
-                      if (DBResiInteraction) {
-                        try {
-                          const newTransaction = new Transaction({
-                            buyer: buyer,
-                            product: product,
-                            deliveryCost: deliveryCost,
-                            address: address,
-                            quantity: quantity,
-                            adminFee: adminFee,
-                            status: "1",
-                            resi: DBResiInteraction._id,
-                          });
-                          const DBTransactionInteraction = await newTransaction.save();
-                          if (DBTransactionInteraction) {
-                            const templateResponse = responseTemplate.success;
-                            templateResponse.data = DBTransactionInteraction;
-                            res.status(200).json(templateResponse);
-                          } else {
-                            const templateResponse = responseTemplate.error;
-                            templateResponse.message = DBTransactionInteraction;
-                            res.status(200).json(templateResponse);
-                          }
-                        } catch (error) {
-                          const templateResponse = responseTemplate.error;
-                          templateResponse.message = `${error}`;
-                          res.status(200).json(templateResponse);
-                        }
+                      const DBTransactionInteraction = await newTransaction.save();
+                      if (DBTransactionInteraction) {
+                        const templateResponse = responseTemplate.success;
+                        templateResponse.data = DBTransactionInteraction;
+                        res.status(200).json(templateResponse);
                       } else {
                         const templateResponse = responseTemplate.error;
-                        templateResponse.message = DBResiInteraction;
+                        templateResponse.message = DBTransactionInteraction;
                         res.status(200).json(templateResponse);
                       }
                     } catch (error) {

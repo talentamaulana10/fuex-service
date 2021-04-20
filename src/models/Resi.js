@@ -3,19 +3,23 @@ const schema = mongoose.Schema;
 
 const ResiSchema = new schema({
   sender: {
-    type: "String",
+    type: String,
     required: true,
   },
+  driver:{
+    type:String,
+    required:true
+  },
   receiver: {
-    type: "String",
+    type: String,
     required: true,
   },
   deliveryCost: {
-    type: "Number",
+    type: Number,
     required: true,
   },
   address: {
-    type: "String",
+    type: String,
     required: true,
   },
   isDelivered: {
