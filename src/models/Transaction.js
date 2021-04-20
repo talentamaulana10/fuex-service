@@ -36,7 +36,7 @@ const TransactionSchema = new schema({
   },
   resi: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 
