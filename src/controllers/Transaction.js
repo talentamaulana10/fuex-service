@@ -45,6 +45,99 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.delete("/cancleOrede/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const CancleOrede = await Transaction.findByIdAndRemove(id);
+    if (CancleOrede) {
+      res.status(404).send({
+        message: `Cannot delete Transaction with id=${id}. Maybe Transaction was not found!`,
+      });
+    } else {
+      res.send({ message: "Transaction was deleted successfully!" });
+    }
+  } catch (error) {
+    const templateResponse = responseTemplate.error;
+    templateResponse.message = `${error}`;
+    res.status(200).json(templateResponse);
+  }
+});
+
+router.put("/completion/:id", async (req, res) => {
+  try {
+    const DBTransactionInteraction = await Transaction.findById(req.params.id);
+    if (DBTransactionInteraction) {
+      try {
+        const DBProductInteraction = await Product.findById(
+          DBTransactionInteraction.product
+        );
+        if (DBProductInteraction) {
+          try {
+            const DBResiInteraction = await Resi.findById(
+              DBTransactionInteraction.resi
+            );
+            if (DBResiInteraction) {
+              try {
+                const CheckingUserWalletSeller = await User.findById(
+                  DBResiInteraction.sender
+                );
+                if (CheckingUserWalletSeller) {
+                  try {
+                    var hasilPenjual = (DBProductInteraction.price * 98) / 100;
+                    try {
+                      const CheckingUserWallet;
+                    } catch (error) {
+                      const templateResponse = responseTemplate.error;
+                      templateResponse.message = `${error}`;
+                      res.status(200).json(templateResponse);
+                    }
+                  } catch (error) {
+                    const templateResponse = responseTemplate.error;
+                    templateResponse.message = `${error}`;
+                    res.status(200).json(templateResponse);
+                  }
+                } else {
+                  const templateResponse = responseTemplate.error;
+                  templateResponse.message = "USER TIDAK DITEMUKAN";
+                  res.status(200).json(templateResponse);
+                }
+              } catch (error) {
+                const templateResponse = responseTemplate.error;
+                templateResponse.message = `${error}`;
+                res.status(200).json(templateResponse);
+              }
+            } else {
+              const templateResponse = responseTemplate.error;
+              templateResponse.message = "PESANAN BELUM TERKONFIRMASI";
+              res.status(200).json(templateResponse);
+            }
+          } catch (error) {
+            const templateResponse = responseTemplate.error;
+            templateResponse.message = `${error}`;
+            res.status(200).json(templateResponse);
+          }
+        } else {
+          const templateResponse = responseTemplate.error;
+          templateResponse.message = "PRODUCT NOT FOUND";
+          res.status(200).json(templateResponse);
+        }
+      } catch (error) {
+        const templateResponse = responseTemplate.error;
+        templateResponse.message = `${error}`;
+        res.status(200).json(templateResponse);
+      }
+    } else {
+      const templateResponse = responseTemplate.error;
+      templateResponse.message = "TRANSACTION NOT FOUND";
+      res.status(200).json(templateResponse);
+    }
+  } catch (error) {
+    const templateResponse = responseTemplate.error;
+    templateResponse.message = `${error}`;
+    res.status(200).json(templateResponse);
+  }
+});
+
 router.put("/procces/:id", async (req, res) => {
   try {
     const DBTransactionInteraction = await Transaction.findById(req.params.id);
@@ -73,7 +166,7 @@ router.put("/procces/:id", async (req, res) => {
                       req.params.id,
                       {
                         status: "2",
-                        resi: DBResiInteraction._id,
+                        resi: DBUserFindDriver._id,
                       }
                     );
                     if (DBUpdateTransactionInteraction) {
