@@ -111,7 +111,9 @@ router.put("/cancel/:id", async (req, res) => {
               res.status(200).json(templateResponse);
               return;
             }
-            res.json(SetOrderStatus);
+            const templateResponse = responseTemplate.success;
+            templateResponse.data = SetOrderStatus;
+            res.status(200).json(templateResponse);
           } catch (error) {
             const templateResponse = responseTemplate.error;
             templateResponse.message = `${error}`;
@@ -258,7 +260,9 @@ router.put("/completion/:id", async (req, res) => {
                         res.status(200).json(templateResponse);
                         return;
                       }
-                      res.json(SetOrderStatus);
+                      const templateResponse = responseTemplate.success;
+                      templateResponse.data = SetOrderStatus;
+                      res.status(200).json(templateResponse);
                     } catch (error) {
                       const templateResponse = responseTemplate.error;
                       templateResponse.message = `${error}`;
