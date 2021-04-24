@@ -86,9 +86,9 @@ router.put("/cancel/:id", async (req, res) => {
             {
               $inc: {
                 balance:
-                  +FindProductById.price +
+                  +FindProductById.price * findTransactionById.quantity +
                   findTransactionById.deliveryCost +
-                  findTransactionById.adminFee * findTransactionById.quantity,
+                  findTransactionById.adminFee,
               },
             }
           );

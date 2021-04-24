@@ -31,7 +31,7 @@ const TransactionSchema = new schema({
     required: true,
   },
   adminFee: {
-    type: String,
+    type: Number,
     required: true,
   },
   resi: {
