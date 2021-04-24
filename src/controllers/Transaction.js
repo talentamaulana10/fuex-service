@@ -27,15 +27,16 @@ router.get("/:id", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
+  const payload = req.query.buyer ? { buyer: req.query.buyer } : {};
   try {
-    const DBTransactionInteraction = await Transaction.find({});
-    if (DBTransactionInteraction) {
+    const DBTransactionInteraction = await Transaction.find(payload);
+    if (DBTransactionInteraction.length > 0) {
       const templateResponse = responseTemplate.success;
       templateResponse.data = DBTransactionInteraction;
       res.status(200).json(templateResponse);
     } else {
       const templateResponse = responseTemplate.error;
-      templateResponse.message = DBTransactionInteraction;
+      templateResponse.message = "DATA NOT FOUND";
       res.status(200).json(templateResponse);
     }
   } catch (error) {
